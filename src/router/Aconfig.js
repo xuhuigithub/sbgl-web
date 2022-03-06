@@ -148,6 +148,16 @@ export const protectedRoute = [
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
                               component: () => import('@/views/exec/ExecDetail.vue'),
+                            },
+                            {
+                              path: '/exec/subRoleAdd',
+                              name: 'exec.add',
+                              meta: {
+                                title: '添加子标签',
+                                icon: 'mdi-alpha-u',
+                                needPermissions: ['user_list','user_create','user_delete','user_update']
+                              },
+                              component: () => import('@/views/exec/SubRoleAdd.vue'),
                             }
                           ],
                         },

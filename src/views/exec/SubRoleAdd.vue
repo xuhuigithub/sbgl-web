@@ -4,28 +4,46 @@
       <v-col cols="12">
       <v-card tile>
       <v-card-title>
-        组件:
+        主标签:
       </v-card-title>
       <v-card-text>
-          <v-btn> Zookeeper </v-btn> <v-btn> Kafka </v-btn> <v-btn> Redis </v-btn>
+         <v-select></v-select>
       </v-card-text>
       </v-card>
       <br>
-      <!-- 详情页 -->
+      <!-- 展开属性 -->
       <v-card tile>
         <v-card-text>
-                <div v-for="(item, index) in pets" :key="`${index}`" v-html="item"></div>
+            <v-text-field label="Another input"></v-text-field>
+            <v-text-field label="Another input"></v-text-field>
+            <v-text-field label="Another input"></v-text-field>
+            <v-text-field label="Another input">
+            <v-icon
+              slot="append"
+              color="red"
+            >
+              mdi-plus
+            </v-icon>
+            <v-icon
+              slot="prepend"
+              color="green"
+            >
+              mdi-minus
+            </v-icon>
+          </v-text-field>
+          <v-switch
+            label="Show messages">
+          </v-switch>
         </v-card-text>
       </v-card>
       <br/>
       <v-card>
         <v-card-actions>
-                  <v-btn
+        <v-btn
           color="orange"
           @click="goBack()"
-          text
         >
-         	&lt;- 返回 
+         	提交 
         </v-btn>
         </v-card-actions>
       </v-card>
@@ -94,24 +112,6 @@ export default {
   watch: {
   },
   mounted(){
-    // let evtSource = new EventSource('/api/test');
-    // const self = this;
-    // evtSource.addEventListener("ping", function(event) {
-    //   if (event.data == 'EOF') {
-    //     evtSource.close()
-    //   }
-    //   self.pets.push(event.data)
-    // })
-
-    // evtSource.onmessage = function(e) {
-    //   console.log(e.data)
-    // if (e.data == "EOF") {
-    //     evtSource.close()
-    // }
-    // var newElement = document.createElement("li");
-
-    // newElement.textContent = "message: " + e.data;
-    // }
 
   },
 
