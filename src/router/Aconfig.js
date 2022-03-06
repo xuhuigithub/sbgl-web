@@ -105,30 +105,53 @@ export const protectedRoute = [
                 },
               ]
             },
-                        //user
+            //user
+            {
+              path: '/user',
+              component: RouteWrapper,
+              meta: {
+                title: '用户',
+                icon: 'mdi-account',
+                needPermissions: ['user_list','user_create','user_delete','user_update']
+              },
+              redirect: '/user/list',
+              children: [
+                {
+                  path: '/user/list',
+                  name: 'user.list',
+                  meta: {
+                    title: '用户列表',
+                    icon: 'mdi-alpha-u',
+                    needPermissions: ['user_list','user_create','user_delete','user_update']
+                  },
+                  component: () => import('@/views/user/UserList.vue'),
+                }
+              ],
+            },
+                        //集成部署
                         {
-                          path: '/user',
+                          path: '/exec',
                           component: RouteWrapper,
                           meta: {
-                            title: '用户',
+                            title: '集成部署',
                             icon: 'mdi-account',
                             needPermissions: ['user_list','user_create','user_delete','user_update']
                           },
-                          redirect: '/user/list',
+                          redirect: '/exec/detail',
                           children: [
                             {
-                              path: '/user/list',
-                              name: 'user.list',
+                              path: '/exec/detail',
+                              name: 'exec.detail',
                               meta: {
-                                title: '用户列表',
+                                title: '集成部署',
                                 icon: 'mdi-alpha-u',
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
-                              component: () => import('@/views/user/UserList.vue'),
+                              component: () => import('@/views/exec/ExecDetail.vue'),
                             }
                           ],
                         },
-      {
+{
         path: '/403',
         name: 'Forbidden',
         meta: {
