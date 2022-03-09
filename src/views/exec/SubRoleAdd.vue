@@ -7,33 +7,42 @@
         主标签:
       </v-card-title>
       <v-card-text>
-         <v-select></v-select>
+         <v-text-field v-model="label.name" label="标签名称"></v-text-field>
+         <v-text-field v-model="label.path" label="标签路径"></v-text-field>
       </v-card-text>
       </v-card>
       <br>
       <!-- 展开属性 -->
       <v-card tile>
         <v-card-text>
-            <v-text-field label="Another input"></v-text-field>
-            <v-text-field label="Another input"></v-text-field>
-            <v-text-field label="Another input"></v-text-field>
-            <v-text-field label="Another input">
-            <v-icon
-              slot="append"
-              color="red"
-            >
-              mdi-plus
-            </v-icon>
-            <v-icon
-              slot="prepend"
-              color="green"
-            >
-              mdi-minus
-            </v-icon>
-          </v-text-field>
-          <v-switch
-            label="Show messages">
-          </v-switch>
+          <v-row  v-for="(item, index) in items" :key="index">
+            <v-col cols="3">
+              <v-select :items="selects" v-model="item.type"></v-select>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field label="属性名称" v-model="item.name">
+             </v-text-field>
+            </v-col>
+            <v-col cols="3" v-if="item.type == 'String'">
+              <v-text-field label="默认值" v-model="item.value">
+             </v-text-field>
+            </v-col>
+            <v-col cols="3" v-else-if="item.type == 'Boolen'">
+              <v-switch v-model="item.value" value="true"></v-switch>
+            </v-col>
+          <v-col cols="2">
+              <v-btn
+              @click="Sub(index)"
+              >
+                -
+              </v-btn>
+              <v-btn
+              @click="Add"
+              >
+                +
+              </v-btn>
+          </v-col>
+        </v-row>
         </v-card-text>
       </v-card>
       <br/>
@@ -55,7 +64,7 @@
 
 <script>
 import TooltipMixin from '@/mixins/Tooltip'
-import { humanReadableFileSize } from 'vuetify/lib/util/helpers'
+import request from '@/util/request2'
 
 export default {
   components: {
@@ -63,51 +72,17 @@ export default {
   mixins: [TooltipMixin],
   data() {
     return {
-      loadingItems: true,
-      selectedItem: {},
-      pets: []
+      label: {
+        name: "",
+        path: ""
+      },
+      items: [
+        {name: '属性', type: "String", value: "CHANGE_ME",},
+      ],
+      selects: ["String", "Int", "Boolen"]
     }
   },
   computed: {
-      dataProps() { return [
-        {
-          name: 'CPU',
-          value: this.selectedItem.cpu,
-        },
-        {
-          name: '内存',
-          value: humanReadableFileSize(this.selectedItem.mem),
-        },
-        {
-          name: '磁盘大小',
-          value: humanReadableFileSize(this.selectedItem.disk),
-        },
-        {
-          name: '网卡mac',
-          value: this.selectedItem.mac,
-        },
-        {
-          name: 'IP地址',
-          value: this.selectedItem.ip,
-        },
-        {
-          name: '系统版本',
-          value: this.selectedItem.system,
-        },
-        {
-          name: '机柜',
-          value: this.selectedItem.cabinet,
-        },
-        {
-          name: '数据中心',
-          value: this.selectedItem.dc,
-        },
-        {
-          name: '系统用户数',
-          value: this.selectedItem.user_nums,
-        },
-      ]
-    }
   },
   watch: {
   },
@@ -118,8 +93,28 @@ export default {
   methods: {
     //
     goBack() {
-      this.$router.go(-1)
+      request({
+        url: `/play_role/`,
+        method: 'post',
+        data: {
+          name: this.label.name,
+          path: this.label.path,
+          play_args: this.items,
+        }
+      }).then((resp) => {
+      return resp
+      })
     },
+
+    Add() {
+      this.items.push({name: '属性', type: "String", value: "CHANGE_ME",})
+    },
+
+    Sub(index) {
+      if (this.items.length > 1){
+        this.items.splice(index, 1);
+      }
+    }
   },
 }
 </script>
