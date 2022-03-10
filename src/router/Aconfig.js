@@ -150,14 +150,24 @@ export const protectedRoute = [
                               component: () => import('@/views/exec/ExecDetail.vue'),
                             },
                             {
-                              path: '/exec/subRoleAdd',
+                              path: '/exec/PlayRoleAdd',
                               name: 'exec.add',
+                              meta: {
+                                title: '添加标签',
+                                icon: 'mdi-alpha-u',
+                                needPermissions: ['user_list','user_create','user_delete','user_update']
+                              },
+                              component: () => import('@/views/exec/PlayRoleAdd.vue'),
+                            },
+                            {
+                              path: '/exec/SubPlayRoleAdd',
+                              name: 'exec.addSub',
                               meta: {
                                 title: '添加子标签',
                                 icon: 'mdi-alpha-u',
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
-                              component: () => import('@/views/exec/SubRoleAdd.vue'),
+                              component: () => import('@/views/exec/SubPlayRoleAdd.vue'),
                             }
                           ],
                         },
