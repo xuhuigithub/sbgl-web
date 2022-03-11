@@ -4,11 +4,11 @@
       <v-col cols="12">
       <v-card tile>
       <v-card-title>
-        组件:
+        组件日志:
       </v-card-title>
-      <v-card-text>
+      <!-- <v-card-text>
           <v-btn> Zookeeper </v-btn> <v-btn> Kafka </v-btn> <v-btn> Redis </v-btn>
-      </v-card-text>
+      </v-card-text> -->
       </v-card>
       <br>
       <!-- 详情页 -->
@@ -18,7 +18,7 @@
         </v-card-text>
       </v-card>
       <br/>
-      <v-card>
+      <!-- <v-card>
         <v-card-actions>
                   <v-btn
           color="orange"
@@ -28,7 +28,7 @@
          	&lt;- 返回 
         </v-btn>
         </v-card-actions>
-      </v-card>
+      </v-card> -->
 
       </v-col>
     </v-row>

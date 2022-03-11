@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-subheader class="pl-0">资产 </v-subheader>
+    <!-- <v-subheader class="pl-0">资产 </v-subheader> -->
     <v-row>
       <v-col cols="12">
         <v-card tile>

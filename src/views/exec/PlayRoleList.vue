@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    <!-- <v-subheader class="pl-0">机柜 </v-subheader> -->
     <v-row>
       <v-col cols="12">
         <v-card tile>
@@ -12,7 +11,7 @@
               flat
               :prepend-icon="showFilter ? 'mdi-filter-variant-plus' : 'mdi-filter-variant'"
               append-icon="mdi-magnify"
-              placeholder="Type something"
+              placeholder="输入名称 模糊搜索"
               hide-details
               clearable
               @keyup.enter="handleApplyFilter"
@@ -23,31 +22,42 @@
             <v-btn icon @click="handleRefreshItem">
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
-            <v-btn icon @click="handleCreateItem" v-show="hasPermission('cabinet_create')">
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
           </v-toolbar>
           <v-divider />
+          <v-card v-show="showFilter" flat class="grey lighten-4">
+            <v-card-text>
+              <v-row>
+                <v-col :cols="4">
+                  <v-autocomplete v-model="filter['filter[main_name]']" :items="getsearchAbleFieldData" item-text="ip" item-value="ip" label="主标签名称" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text @click="handleResetFilter">Reset</v-btn>
+              <v-btn tile color="primary" @click="handleApplyFilter">Apply</v-btn>
+            </v-card-actions>
+          </v-card>
           <v-card-text class="pa-0">
             <v-data-table
+              disable-sort
               :loading="loadingItems"
               :headers="headers"
               :items="items"
-              :disable-pagination=true
-              item-key="id"
+              :footer-props="{'items-per-page-options':[15, 30, 50, 100, -1]}"
+              :server-items-length="serverItemsLength"
+              :items-per-page.sync="itemsPerPage"
+              :page.sync="filter['page']"
+              item-key="name"
+              @update:page="handlePageChanged"
+              @click:row="handleClickRow"
             >
-              <template #[`item.dc_name`]="{ item }">
+              <template #[`item.status`]="{ item }">
                 <v-autocomplete
-                  v-model="item.dc_name"
-                  :items="getDC"
-                  item-text="name"
-                  item-value="name"
-                  @change="handleUpdateDC(item, item.dc_name)"
-                  v-if="hasPermission('cabinet_update')"
+                  v-model="item.status"
+                  :items="getTaskStatus"
+                  @change="handleUpdateStatus(item, item.status)"
                 />
-                <span v-else>
-                  {{ item.dc_name }}
-                </span>
               </template>
               <template #[`item.action`]="{ item }">
                 <v-menu>
@@ -77,18 +87,22 @@
       </v-col>
     </v-row>
     <v-dialog v-model="showDialog" scrollable width="840">
-      <cabinet-form :item="selectedItem" @form:success="handleFormSuccess" @form:cancel="handleFormCancel" />
+      <exec-detail/>
     </v-dialog>
   </v-container>
 </template>
 
 <script>
 import TooltipMixin from '@/mixins/Tooltip'
-import CabinetForm from '@/components/form/CabinetForm'
+import AssetForm from '@/components/form/AssetForm'
 import { mapGetters } from 'vuex'
+import request from '@/util/request2'
+// import ExecDetail from '@/views/exec/ExecDetail'
+import ExecDetail from './ExecDetail.vue'
+
 export default {
   components: {
-    CabinetForm
+    ExecDetail
   },
   mixins: [TooltipMixin],
   data() {
@@ -99,25 +113,30 @@ export default {
       selectedItem: null,
       serverItemsLength: 0,
       itemsPerPage: 15,
+      formColumns: [],
       showFilter: true,
       filter: {
-        'filter[name]': "",
+        page: 1,
+        'filter[name]': null,
+        'filter[main_name]': null,
       },
       headers: [
         {
-          text: 'ID',
-          value: 'id',
-          width: '10%'
-        },
-        {
-          text: 'NAME',
+          text: '名称',
           value: 'name',
-          width: '50%'
+          width: '30%'
         },
         {
-          text: 'DC',
-          value: 'dc_name',
-          width: '20%'
+          text: '主标签',
+          value: 'main_name',
+        },
+        {
+          text: '主机',
+          value: 'hosts',
+        },
+        {
+          text: '上一次执行时间',
+          value: 'last_execution',
         },
         {
           text: 'Action',
@@ -127,18 +146,36 @@ export default {
       items: [],
       actions: [
         {
-          text: 'Delete Cabinet',
+          text: '执行',
+          icon: 'mdi-pencil',
+          click: this.handleEditItem,
+          permissionEval: () => {
+            return this.hasPermission('asset_update')
+          }
+        },
+        {
+          text: '删除',
           icon: 'mdi-close',
           click: this.handleDeleteItem,
           permissionEval: () => {
-            return this.hasPermission('cabinet_delete')
+            return this.hasPermission('asset_delete')
           }
         },
       ],
     }
   },
   computed: {
-      ...mapGetters(['getDC',,'hasPermission']),
+      start: function(){
+        let a = (this.filter.page - 1) * this.itemsPerPage
+        // if (a == 0) {
+          a += 1
+        // }
+          return a
+      },
+      limit: function(){
+        return this.filter.page * this.itemsPerPage
+      },
+      ...mapGetters(['getTaskStatus', 'getProjectList', 'getsearchAbleFieldData','getUsers','hasPermission']),
   },
   watch: {
     '$route.query': {
@@ -148,14 +185,21 @@ export default {
       },
       immediate: true,
     },
+    'itemsPerPage': {
+      handler() {
+        this.fetchRecords(this.filter)
+      },
+    }
   },
   created(){
 
+  this.$store
+    .dispatch('fetchsearchAbleFieldData', {
+      'start': '1',
+      'limit': '65535'
+    })
 
-    this.$store.dispatch('fetchCabinet')
-    this.$store.dispatch('fetchDC')
-    this.fetchRecords(this.filter)
-    
+    this.$store.dispatch('fetchUser')
   },
 
   methods: {
@@ -176,50 +220,70 @@ export default {
     },
     resetFilter() {
       this.filter = {
-        'filter[name]': "",
+        page: this.filter.page,
+        'filter[name]': null,
+        'filter[main_name]': null,
       }
     },
     fetchRecords(query) {
       this.loadingItems = true
       this.items = []
       const _self = this
-      return this.$store.dispatch('fetchCabinet', query)
-      .then((res) => {
+      request({
+        url: `/play_role/sub`,
+        method: 'get',
+        params: {start: _self.start, limit: _self.limit, ...query},
+      }).then((resp) => {
+        _self.items = resp.data.results
+        _self.serverItemsLength = resp.data.count
         _self.loadingItems = false
-        _self.items = res.data
-      })
-        .catch(() => {
+    }).catch(() => {
           _self.loadingItems = false
         })
     },
     //action
     handleCreateItem() {
+      this.formColumns = ['sn','ip','user_name','comment','cabinet_id','family']
       this.selectedItem = null
       this.showDialog = true
     },
-    handleDeleteItem({ id }) {
-      if (window.confirm('Are you sure to delete ID: ' + id)) {
-        this.$store.dispatch('deleteCabinet', {id: id}).then(() => {
-          this.fetchRecords(this.filter)
-        })
-      }
+    handleEditItem(item) {
+      this.formColumns = ['*']
+      this.selectedItem = item
+      this.showDialog = true
     },
-    handleUpdateDC(item, dc_name) {
+    handleDeleteItem({ name }) {
+      if (window.confirm('Are you sure to delete this')) {
+            request({
+                url: `/play_role/sub/${name}`,
+                method: 'delete',
+            })
+      }
+      this.fetchRecords(this.filter)
+    },
+    handleUpdateStatus(item, status) {
       const payload = {
         id: item.id,
         data: {
-          dc_name: dc_name,
+          status: status,
         },
       }
-      this.$store.dispatch('updateCabinet', payload)
+      this.$store.dispatch('updateTask', payload)
     },
     handleRefreshItem() {
       this.fetchRecords(this.filter)
     },
+    // filter
+    handlePageChanged(page) {
+      this.filter.page = page
+      this.filter.t = Date.now()
+      this.$router.replace({
+        path: this.$route.path,
+        query: this.filter,
+      })
+    },
     handleResetFilter() {
-      this.filter = {
-        'filter[*]': null,
-      }
+      this.resetFilter()
       this.$router.replace({
         path: this.$route.path,
       })
@@ -241,10 +305,13 @@ export default {
     },
     handleFormSuccess() {
       this.showDialog = false
-      this.fetchRecords()
+      this.fetchRecords(this.filter)
     },
     handleFormCancel() {
       this.showDialog = false
+    },
+    handleClickRow ({name}) {
+      this.$router.push({path: `/exec/SubPlayRoleAdd?action=update&name=${name}`})
     }
   },
 }

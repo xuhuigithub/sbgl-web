@@ -168,7 +168,16 @@ export const protectedRoute = [
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
                               component: () => import('@/views/exec/SubPlayRoleAdd.vue'),
-                            }
+                            },                            {
+                              path: '/exec/PlayRole',
+                              name: 'exec.list',
+                              meta: {
+                                title: '标签',
+                                icon: 'mdi-alpha-u',
+                                needPermissions: ['user_list','user_create','user_delete','user_update']
+                              },
+                              component: () => import('@/views/exec/PlayRoleList.vue'),
+                            },
                           ],
                         },
 {

@@ -19,7 +19,7 @@
           return value.endsWith('-' + label_name) || '必须以主Label名结尾'
         },]"></v-text-field>
             <v-select :menu-props="{ top: true, offsetY: true }" :items="labels" item-text="name" item-value="name" @change="updateItems" v-model="label_name" label="标签" :rules="[value => !!value || 'Required.']"></v-select>
-            <v-select multiple :items="hosts" :item-text="item => item.sn +' - '+ item.ip"  item-value="ip"  :rules="[value => !!value || 'Required.']">
+            <v-select v-model="sub_label.hosts" multiple :items="hosts" :item-text="item => item.sn +' - '+ item.ip"  item-value="ip"  :rules="[value => !!value || 'Required.']">
             </v-select>
           </v-form>
       </v-card-text>
@@ -65,7 +65,7 @@
           color="orange"
           @click="goBack()"
         >
-         	提交 
+         	{{ buttonName }}
         </v-btn>
         </v-card-actions>
       </v-card>
@@ -91,7 +91,8 @@ export default {
       labels: [],
       hosts: [],
       sub_label: {
-        name: ""
+        name: "",
+        hosts: []
       },
       items: [
         {name: '属性', type: "String", value: null,},
@@ -112,6 +113,20 @@ export default {
     }
   },
   computed: {
+    isUpdate: function() {
+       if (this.$route.query.action == "update") {
+         return true
+       } else {
+         return false
+       }
+    },
+    buttonName: function() {
+       if (this.isUpdate) {
+         return "更新"
+       } else {
+         return "提交"
+       }
+    }
   },
   watch: {
   },
@@ -124,6 +139,17 @@ export default {
         .then(({ data, meta }) => {
           _self.hosts = data.results
         })
+    if (this.isUpdate) {
+      request({
+        url: `/play_role/sub/${this.$route.query.name}`,
+        method: 'get',
+      }).then((resp) => {
+        this.items = resp.data.play_args
+        this.sub_label.name = resp.data.name
+        this.label_name =  resp.data.main_name
+        this.sub_label.hosts = resp.data.hosts
+      })    
+    }
   },
 
   methods: {
@@ -135,17 +161,33 @@ export default {
       if (!this.$refs.form2.validate()){
         return
       }
-      request({
-        url: `/play_role/`,
-        method: 'post',
-        data: {
-          name: this.label.name,
-          path: this.label.path,
-          play_args: this.items,
-        }
-      }).then((resp) => {
-      return resp
-      })
+      if (this.isUpdate) {
+        request({
+          url: `/play_role/sub/${this.$route.query.name}`,
+          method: 'put',
+          data: {
+            name: this.sub_label.name,
+            main_name: this.label_name,
+            play_args: this.items,
+            hosts: this.sub_label.hosts
+          }
+        }).then((resp) => {
+        return resp
+        })
+      } else {
+        request({
+          url: `/play_role/sub`,
+          method: 'post',
+          data: {
+            name: this.sub_label.name,
+            main_name: this.label_name,
+            play_args: this.items,
+            hosts: this.sub_label.hosts
+          }
+        }).then((resp) => {
+        return resp
+        })
+      }
     },
 
     updateItems() {
