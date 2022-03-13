@@ -149,6 +149,10 @@ export default {
           value: 'comment',
         },
         {
+          text: '最后一次心跳时间',
+          value: 'last_seen',
+        },
+        {
           text: 'Action',
           value: 'action',
         },

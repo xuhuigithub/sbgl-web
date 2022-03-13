@@ -105,11 +105,11 @@ export default {
       selects: ["String", "Int", "Boolean"],
       rules_str: [
         value => !!value || 'Required.',
-        value => (value || '').length <= 20 ||  'Max 20 characters'
+        value => (value || '').length <= 50 ||  'Max 50 characters'
       ],
       rules_int: [
         value => !!value || 'Required.',
-        value => (value || '').length <= 20 ||  'Max 20 characters',
+        value => (value || '').length <= 50 ||  'Max 50 characters',
         value => {
           const pattern = /^[0-9]*$/
           return pattern.test(value) || 'Invalid'

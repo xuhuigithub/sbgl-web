@@ -145,7 +145,8 @@ export const protectedRoute = [
                               meta: {
                                 title: '集成部署',
                                 icon: 'mdi-alpha-u',
-                                needPermissions: ['user_list','user_create','user_delete','user_update']
+                                needPermissions: ['user_list','user_create','user_delete','user_update'],
+                                hidden: true
                               },
                               component: () => import('@/views/exec/ExecDetail.vue'),
                             },
@@ -165,14 +166,15 @@ export const protectedRoute = [
                               meta: {
                                 title: '添加子标签',
                                 icon: 'mdi-alpha-u',
-                                needPermissions: ['user_list','user_create','user_delete','user_update']
+                                needPermissions: ['user_list','user_create','user_delete','user_update'],
+                                hidden: true
                               },
                               component: () => import('@/views/exec/SubPlayRoleAdd.vue'),
                             },                            {
                               path: '/exec/PlayRole',
                               name: 'exec.list',
                               meta: {
-                                title: '标签',
+                                title: '子标签',
                                 icon: 'mdi-alpha-u',
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },

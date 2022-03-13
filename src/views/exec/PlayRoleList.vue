@@ -22,13 +22,19 @@
             <v-btn icon @click="handleRefreshItem">
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
+            <v-btn icon @click="handleCreateItem" v-show="hasPermission('asset_create')">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </v-toolbar>
           <v-divider />
           <v-card v-show="showFilter" flat class="grey lighten-4">
             <v-card-text>
               <v-row>
                 <v-col :cols="4">
-                  <v-autocomplete v-model="filter['filter[main_name]']" :items="getsearchAbleFieldData" item-text="ip" item-value="ip" label="主标签名称" />
+                  <v-autocomplete v-model="filter['filter[ip]']" :items="getsearchAbleFieldData" item-text="ip" item-value="ip" label="主机IP" />
+                </v-col>
+                <v-col :cols="4">
+                  <v-autocomplete v-model="filter['filter[main_name]']" :items="main_label_names" item-text="name" item-value="name" label="主标签名称" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -86,8 +92,15 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="showDialog" scrollable width="840">
-      <exec-detail/>
+    <v-dialog ref="execs" v-model="showDialog" scrollable fullscreen persistent>
+      <v-row>
+        <v-col cols="12">
+          <exec-detail  v-model="exec_name" :uuid="componentKey"  @playok="handelPlayOK" />
+        </v-col>
+        <v-col cols="12">
+          <v-btn color="orange" @click="handleColse" v-show="isplayok">关闭</v-btn>
+        </v-col>
+      </v-row>
     </v-dialog>
   </v-container>
 </template>
@@ -107,8 +120,10 @@ export default {
   mixins: [TooltipMixin],
   data() {
     return {
+      isplayok: false,
+      componentKey: 0,
       showDialog: false,
-      search: '',
+      exec_name: '',
       loadingItems: false,
       selectedItem: null,
       serverItemsLength: 0,
@@ -119,6 +134,7 @@ export default {
         page: 1,
         'filter[name]': null,
         'filter[main_name]': null,
+        'filter[ip]': null,
       },
       headers: [
         {
@@ -137,6 +153,10 @@ export default {
         {
           text: '上一次执行时间',
           value: 'last_execution',
+        },
+        {
+          text: '上一次退出代码',
+          value: 'last_exit_code',
         },
         {
           text: 'Action',
@@ -160,8 +180,17 @@ export default {
           permissionEval: () => {
             return this.hasPermission('asset_delete')
           }
+        },        
+        {
+          text: '下载日志',
+          icon: 'mdi-close',
+          click: this.downloadLog,
+          permissionEval: () => {
+            return this.hasPermission('asset_delete')
+          }
         },
       ],
+      main_label_names: [],
     }
   },
   computed: {
@@ -200,6 +229,18 @@ export default {
     })
 
     this.$store.dispatch('fetchUser')
+
+    const _self = this
+    request({
+        url: `/play_role/`,
+        method: 'get',
+        headers: {
+          'X-Fields': 'name'
+        }
+    }).then((resp) => {
+        _self.main_label_names = resp.data
+  }).catch(() => {
+      })
   },
 
   methods: {
@@ -223,6 +264,7 @@ export default {
         page: this.filter.page,
         'filter[name]': null,
         'filter[main_name]': null,
+        'filter[ip]': null,
       }
     },
     fetchRecords(query) {
@@ -243,13 +285,10 @@ export default {
     },
     //action
     handleCreateItem() {
-      this.formColumns = ['sn','ip','user_name','comment','cabinet_id','family']
-      this.selectedItem = null
-      this.showDialog = true
+      this.$router.push({path: `/exec/SubPlayRoleAdd?action=add`})
     },
     handleEditItem(item) {
-      this.formColumns = ['*']
-      this.selectedItem = item
+      this.exec_name = item.name
       this.showDialog = true
     },
     handleDeleteItem({ name }) {
@@ -257,9 +296,12 @@ export default {
             request({
                 url: `/play_role/sub/${name}`,
                 method: 'delete',
+            }).then(()=>{
+              this.fetchRecords(this.filter)
+            }).catch(()=>{
+              this.fetchRecords(this.filter)
             })
       }
-      this.fetchRecords(this.filter)
     },
     handleUpdateStatus(item, status) {
       const payload = {
@@ -312,6 +354,17 @@ export default {
     },
     handleClickRow ({name}) {
       this.$router.push({path: `/exec/SubPlayRoleAdd?action=update&name=${name}`})
+    },
+    handleColse (){
+      this.showDialog = false
+      this.componentKey += 1;  
+      location.reload()
+    },
+    handelPlayOK () {
+      this.isplayok = true;
+    },
+    downloadLog ({ name }){
+      window.open(`/api/play_role/sub/${name}/log`)
     }
   },
 }

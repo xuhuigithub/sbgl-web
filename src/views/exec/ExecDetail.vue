@@ -43,6 +43,10 @@ export default {
   components: {
   },
   mixins: [TooltipMixin],
+  props: {
+    value: String,
+    uuid: Number,
+},
   data() {
     return {
       loadingItems: true,
@@ -51,67 +55,29 @@ export default {
     }
   },
   computed: {
-      dataProps() { return [
-        {
-          name: 'CPU',
-          value: this.selectedItem.cpu,
-        },
-        {
-          name: '内存',
-          value: humanReadableFileSize(this.selectedItem.mem),
-        },
-        {
-          name: '磁盘大小',
-          value: humanReadableFileSize(this.selectedItem.disk),
-        },
-        {
-          name: '网卡mac',
-          value: this.selectedItem.mac,
-        },
-        {
-          name: 'IP地址',
-          value: this.selectedItem.ip,
-        },
-        {
-          name: '系统版本',
-          value: this.selectedItem.system,
-        },
-        {
-          name: '机柜',
-          value: this.selectedItem.cabinet,
-        },
-        {
-          name: '数据中心',
-          value: this.selectedItem.dc,
-        },
-        {
-          name: '系统用户数',
-          value: this.selectedItem.user_nums,
-        },
-      ]
-    }
   },
   watch: {
   },
-  mounted(){
-    // let evtSource = new EventSource('/api/test');
-    // const self = this;
-    // evtSource.addEventListener("ping", function(event) {
-    //   if (event.data == 'EOF') {
-    //     evtSource.close()
-    //   }
-    //   self.pets.push(event.data)
-    // })
+  created(){
+    let evtSource = new EventSource(`/api/execPlayRole?name=${this.value}&${this.uuid}`);
+    const self = this;
+    evtSource.addEventListener("ping", function(event) {
+      if (event.data == 'EOF') {
+        evtSource.close()
+        self.$emit("playok")
+      }
+      self.pets.push(event.data)
+    })
 
-    // evtSource.onmessage = function(e) {
-    //   console.log(e.data)
-    // if (e.data == "EOF") {
-    //     evtSource.close()
-    // }
-    // var newElement = document.createElement("li");
+    evtSource.onmessage = function(e) {
+      console.log(e.data)
+    if (e.data == "EOF") {
+        evtSource.close()
+    }
+    var newElement = document.createElement("li");
 
-    // newElement.textContent = "message: " + e.data;
-    // }
+    newElement.textContent = "message: " + e.data;
+    }
 
   },
 
@@ -129,5 +95,8 @@ p {
 }
 .v-btn {
   margin: 0% 5px 0% 5px;
+}
+.v-card__text {
+  background-color: blanchedalmond;
 }
 </style>
