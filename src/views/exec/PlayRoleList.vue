@@ -234,11 +234,17 @@ export default {
     request({
         url: `/play_role/`,
         method: 'get',
+        params: {
+      'start': '1',
+      'limit': '65535'
+      },
         headers: {
-          'X-Fields': 'name'
+          'X-Fields': '{results{name}}'
         }
     }).then((resp) => {
-        _self.main_label_names = resp.data
+        _self.main_label_names = resp.data.results.map((item) => {
+          return item.name
+        })
   }).catch(() => {
       })
   },

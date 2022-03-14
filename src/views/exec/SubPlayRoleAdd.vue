@@ -200,11 +200,21 @@ export default {
     },
 
     getItems() {
-      request({
+
+    const _self = this
+    request({
         url: `/play_role/`,
         method: 'get',
-      }).then((resp) => {
-        this.labels = resp.data
+        params: {
+      'start': '1',
+      'limit': '65535'
+      },
+        headers: {
+          'X-Fields': '{results{name}}'
+        }
+    }).then((resp) => {
+        _self.labels = resp.data.results
+  }).catch(() => {
       })
     },
 
