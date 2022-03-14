@@ -134,7 +134,7 @@ export const protectedRoute = [
                           component: RouteWrapper,
                           meta: {
                             title: '集成部署',
-                            icon: 'mdi-account',
+                            icon: 'mdi-bag-suitcase-off-outline',
                             needPermissions: ['user_list','user_create','user_delete','user_update']
                           },
                           redirect: '/exec/detail',
@@ -144,7 +144,7 @@ export const protectedRoute = [
                               name: 'exec.detail',
                               meta: {
                                 title: '集成部署',
-                                icon: 'mdi-alpha-u',
+                                icon: 'mdi-bag-suitcase-off-outline',
                                 needPermissions: ['user_list','user_create','user_delete','user_update'],
                                 hidden: true
                               },
@@ -154,8 +154,8 @@ export const protectedRoute = [
                               path: '/exec/PlayRoleAdd',
                               name: 'exec.add',
                               meta: {
-                                title: '添加标签',
-                                icon: 'mdi-alpha-u',
+                                title: '标签',
+                                icon: 'mdi-baby-bottle',
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
                               component: () => import('@/views/exec/PlayRoleAdd.vue'),
@@ -175,7 +175,7 @@ export const protectedRoute = [
                               name: 'exec.list',
                               meta: {
                                 title: '子标签',
-                                icon: 'mdi-alpha-u',
+                                icon: 'mdi-baby-carriage',
                                 needPermissions: ['user_list','user_create','user_delete','user_update']
                               },
                               component: () => import('@/views/exec/PlayRoleList.vue'),
