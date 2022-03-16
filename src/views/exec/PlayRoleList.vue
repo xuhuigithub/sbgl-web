@@ -98,7 +98,7 @@
           <exec-detail  v-model="exec_name" :uuid="componentKey"  @playok="handelPlayOK" />
         </v-col>
         <v-col cols="12">
-          <v-btn color="orange" @click="handleColse" v-show="isplayok">关闭</v-btn>
+          <v-btn color="orange" @click="handleColse" v-show="isplayok" block>关闭</v-btn>
         </v-col>
       </v-row>
     </v-dialog>
