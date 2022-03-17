@@ -4,7 +4,7 @@
       <v-col cols="12">
       <v-card tile>
       <v-card-title>
-        资产详情 SN: {{ $route.params.sn }}
+        资产详情 SN: {{ selectedItem.real_sn }}
       </v-card-title>
       <v-card-text>
         <div>概览:
