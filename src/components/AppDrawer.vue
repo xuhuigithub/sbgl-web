@@ -10,7 +10,9 @@
     <v-toolbar color="primary darken-1" dark>
       <img :src="computeLogo" height="36" alt="Vue Material Admin Template" />
       <v-toolbar-title>
-        <span class="hidden-sm-and-down">SBGL</span>
+        <span class="hidden-sm-and-down">SBGL {{ VERSION }}</span>
+        <br/>
+                <span style="font-size: 3px;">后端版本：{{ BACKEND_VERSION }}</span>
       </v-toolbar-title>
     </v-toolbar>
     <!-- <app-switcher /> -->
@@ -40,7 +42,9 @@ import { protectedRoute as routes } from '@/router/Aconfig'
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import { mapGetters } from 'vuex'
 // import AppSwitcher from './AppSwitcher'
+import {VERSION} from '@/version'
 import NavList from '@/components/nav/NavList'
+import request from '@/util/request2'
 export default {
   name: 'AppDrawer',
   components: { VuePerfectScrollbar, NavList },
@@ -48,6 +52,8 @@ export default {
   data() {
     return {
       mini: false,
+      VERSION: VERSION,
+      BACKEND_VERSION: 0,
       showDrawer: true,
       drawerWidth: 256,
       scrollSettings: {
@@ -55,7 +61,15 @@ export default {
       },
     }
   },
-
+  mounted(){
+      const _self = this;
+      request({
+          url: `/version`,
+          method: 'get',
+        }).then((resp => {
+          _self.BACKEND_VERSION = resp.data
+        }))
+  },
   computed: {
     computeLogo() {
       return '/static/m.png'

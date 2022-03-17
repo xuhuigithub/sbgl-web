@@ -1,4 +1,5 @@
 <template>
+<div>
   <v-form-builder
     ref="builder"
     v-model="formModel"
@@ -10,6 +11,9 @@
     @form:submit="handleSubmit"
     @form:cancel="$emit('form:cancel')"
   />
+  <v-switch label="是否自动采集" v-model="auto_populate"></v-switch>
+</div>
+
 </template>
 
 <script>
@@ -30,6 +34,7 @@ export default {
     return {
       loading: false,
       formModel: {},
+      auto_populate: true,
     }
   },
   computed: {
@@ -43,7 +48,7 @@ export default {
           cols: 12,
           element: VTextField,
           props: {
-            name: 'sn',
+            name: 'real_sn',
             required: true,
             outlined: true,
             rules: [(v) => !!v || '此字段不能为空'],
@@ -192,11 +197,13 @@ export default {
       if (form.validate()) {
         this.loading = true
         const data = this.transformData(this.formModel)
+        console.log(this.auto_populate)
         if (this.item && this.item.created_time) {
           return this.$store
             .dispatch('updateAsset', {
               sn: this.item.sn,
               data: data,
+              auto_populate: this.auto_populate
             })
             .then(() => {
               this.$emit('form:success')
@@ -207,6 +214,7 @@ export default {
               this.loading = false
             })
         } else {
+          data.auto_populate = this.auto_populate
           return this.$store
             .dispatch('createAsset', data)
             .then(() => {

@@ -28,7 +28,7 @@ const getters = {
   getsearchAbleFieldData: (state) => {
     return state.searchAbleFieldData.map((item) => {
       return {
-        sn: item.sn,
+        sn: item.real_sn,
         ip: item.ip,
       }
     })
@@ -72,7 +72,7 @@ const actions = {
       method: 'get',
       params: query,
       headers: {
-      'X-Fields': '{results{sn,ip}}'
+      'X-Fields': '{results{real_sn,ip}}'
       }
     }).then((resp) => {
       let data = resp.data.results
@@ -113,7 +113,7 @@ const actions = {
   createAsset(context, data) {
     context.commit('SHOW_SNACKBAR', { text: "正在收集主机信息" + "这大约需要" + 1 + "分钟" , color: 'info' })
     return request({
-      url: `/asset/`,
+      url: `/asset/?auto_populate=${data.auto_populate}`,
       method: 'post',
       data: data,
     }).then((resp) => {
@@ -129,9 +129,9 @@ const actions = {
       return resp
     })
   },
-  updateAsset(context, { sn, data }) {
+  updateAsset(context, { sn, data,auto_populate }) {
     return request({
-      url: `/asset/${sn}`,
+      url: `/asset/${sn}?auto_populate=${auto_populate}`,
       method: 'put',
       data: data,
     }).then((resp) => {

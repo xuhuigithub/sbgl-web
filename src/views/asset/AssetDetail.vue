@@ -41,7 +41,33 @@
                   :key="item.name"
                   style="font-family: 微软雅黑；"
                 >
-                  <td width="20%" style="text-align: center">{{ item.name }}</td> &nbsp;&nbsp;&nbsp;&nbsp; <td>{{ item.value }}</td>
+                  <td width="20%" style="text-align: center">{{ item.name }}</td>
+                  <td v-if="item.name === '网卡' ">
+                    <v-data-table
+                    :headers="[{
+                      text: '网卡名称',
+                      value: 'name'
+                    },
+                    {
+                      text: 'IP地址',
+                      value: 'address'
+                    },
+                    {
+                      text: 'MAC地址',
+                      value: 'mac'
+                    },
+                    {
+                      text: '模块',
+                      value: 'module'
+                    },
+                    ]"
+                    :items="item.value"
+                    hide-default-footer
+                    disable-sort
+                    >
+                    </v-data-table>
+                  </td>
+                  <td v-else>{{ item.value }}</td>
                 </tr>
               </tbody>
             </template>
@@ -99,6 +125,10 @@ export default {
           value: this.selectedItem.mac,
         },
         {
+          name: '网卡',
+          value: this.selectedItem.network_devices,
+        },
+        {
           name: 'IP地址',
           value: this.selectedItem.ip,
         },
@@ -146,5 +176,12 @@ export default {
 <style lang="css" scoped>
 p {
   margin: 0% 0% 5px 0%;
+}
+table, td, th {
+  border: 1px solid;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 </style>

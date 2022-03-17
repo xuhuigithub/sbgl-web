@@ -133,27 +133,23 @@ export default {
       headers: [
         {
           text: 'SN',
-          value: 'sn',
-          width: '30%'
+          value: 'real_sn',
+          width: '20%'
         },
         {
           text: 'IP',
           value: 'ip',
         },
         {
-          text: 'Model',
+          text: '模块',
           value: 'model',
-        },
-        {
-          text: 'Description',
-          value: 'comment',
         },
         {
           text: '最后一次心跳时间',
           value: 'last_seen',
         },
         {
-          text: 'Action',
+          text: '动作',
           value: 'action',
         },
       ],
@@ -258,12 +254,12 @@ export default {
     },
     //action
     handleCreateItem() {
-      this.formColumns = ['sn','ip','user_name','comment','cabinet_id','family']
+      this.formColumns = ['real_sn','ip','user_name','comment','cabinet_id','family']
       this.selectedItem = null
       this.showDialog = true
     },
     handleEditItem(item) {
-      this.formColumns = ['*']
+      this.formColumns = ['real_sn','ip','user_name','comment','cabinet_id','family']
       this.selectedItem = item
       this.showDialog = true
     },
@@ -320,8 +316,9 @@ export default {
       this.showDialog = false
       this.fetchRecords(this.filter)
     },
-    handleFormCancel() {
+    handleFormCancel(item) {
       this.showDialog = false
+      this.selectedItem = item
     },
     handleClickRow ({sn}) {
       this.$router.push({path: `/asset/detail/${sn}`})
