@@ -109,6 +109,7 @@
 import TooltipMixin from '@/mixins/Tooltip'
 import AssetForm from '@/components/form/AssetForm'
 import { mapGetters } from 'vuex'
+import request from '@/util/request2'
 export default {
   components: {
     AssetForm,
@@ -169,7 +170,15 @@ export default {
           click: this.handleDeleteItem,
           permissionEval: () => {
             return this.hasPermission('asset_delete')
-          }
+          },
+        },
+        {
+          text: '登录',
+          icon: 'mdi-console',
+          click: this.handleLoginItem,
+          permissionEval: () => {
+            return this.hasPermission('asset_delete')
+          },
         },
       ],
     }
@@ -269,6 +278,15 @@ export default {
           this.fetchRecords(this.filter)
         })
       }
+    },
+    handleLoginItem({sn}) {
+    const _self = this
+    request({
+        url: `/getLowerPort/${sn}`,
+        method: 'get',
+    }).then((resp) => {
+        window.open(`${window.location.protocol}//keystore:${resp.data.uuid}@${window.location.hostname}:${resp.data.port}`)
+  })
     },
     handleUpdateStatus(item, status) {
       const payload = {
